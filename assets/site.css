@@ -1,0 +1,134 @@
+/* RomanAI design system, applied site-wide. Loaded last in <head> on every page,
+   so it also re-skins the older tool pages that carry their own inline styles.
+   Source of truth for the values: RomanAI-design-system/tokens.css (light theme). */
+:root{
+  --surface-100:#faf5ec; --surface-200:#f2eadc; --surface-card:#fffdf8;
+  --ink:#2a211b; --ink-muted:#6b5d52; --line:#e3d8c6;
+  --brand:#b4502f; --on-brand:#fffdf8; --brand-tint:#f4ded3;
+  --teal:#1f5f5b; --on-teal:#fffdf8; --teal-tint:#dcedea;
+  --amber:#d99a2b; --success:#2e7d4f; --warning:#9a6514; --danger:#a8362d;
+  --data-muted:#d6cbbb;
+  --shadow-card:0 1px 2px rgba(42,33,27,.06),0 8px 24px rgba(42,33,27,.06);
+  --font-sans:"Alef","Arial Hebrew",Arial,sans-serif;
+  --space-1:4px;--space-2:8px;--space-3:16px;--space-4:24px;--space-5:40px;--space-6:64px;
+  --radius-sm:6px;--radius-md:12px;--radius-lg:24px;--radius-pill:999px;
+
+  /* names used by the older tool pages, mapped onto the tokens */
+  --canvas:var(--surface-100); --paper:var(--surface-200); --card:var(--surface-card);
+  --ink-soft:var(--ink-muted); --brand-deep:#8f3d22; --core-1:var(--teal);
+  --root:var(--warning); --leaf:var(--success); --warn:var(--danger);
+  --sans:var(--font-sans); --shadow:var(--shadow-card); --shadow-sm:var(--shadow-card);
+}
+html{background:var(--surface-100)}
+body{background:var(--surface-100)!important;background-image:none!important;color:var(--ink);font-family:var(--font-sans)}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* ---------- top strip: wordmark + way back ---------- */
+.topbar{display:flex;align-items:center;gap:14px;padding:9px 24px;background:var(--teal);color:var(--on-teal);font-family:var(--font-sans);direction:rtl}
+.topbar .mark{font-size:22px;font-weight:700;color:var(--on-teal);text-decoration:none;letter-spacing:-.3px;direction:ltr;line-height:1}
+.topbar .mark span{color:#f0b95a}
+.topbar .home{margin-inline-start:auto;display:inline-flex;align-items:center;gap:7px;color:#d4e8e4;font-size:14.5px;font-weight:700;text-decoration:none;padding:5px 10px;border-radius:var(--radius-sm)}
+.topbar .home svg{width:18px;height:18px}
+.topbar .home:hover{color:#fff;background:rgba(255,255,255,.1)}
+/* way-finding row: stays in view while scrolling, so "back" is always one tap away */
+.wayfind{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:18px;padding:10px 24px;background:var(--surface-card);border-bottom:1px solid var(--line);box-shadow:0 2px 10px rgba(42,33,27,.07);font-family:var(--font-sans);direction:rtl}
+.wayfind .back{display:inline-flex;align-items:center;gap:10px;flex:0 0 auto;background:var(--teal);color:var(--on-teal);text-decoration:none;border-radius:var(--radius-md);padding:7px 16px 7px 18px;font-weight:700;font-size:15.5px;line-height:1.15;transition:background .15s ease-out,transform .15s ease-out}
+.wayfind .back svg{width:20px;height:20px;flex:0 0 auto;transition:transform .2s cubic-bezier(.2,.8,.2,1)}
+.wayfind .back small{display:block;font-size:11.5px;font-weight:400;color:#bfe0da}
+.wayfind .back:hover{background:#174a47}
+.wayfind .back:hover svg{transform:translateX(3px)}
+.wayfind .back:active{transform:scale(.98)}
+.wayfind .trail{display:flex;align-items:center;flex-wrap:wrap;gap:2px;list-style:none;margin:0;padding:0;font-size:14.5px;min-width:0}
+.wayfind .trail li{display:inline-flex;align-items:center;gap:2px}
+.wayfind .trail a{color:var(--ink-muted);text-decoration:none;padding:4px 6px;border-radius:var(--radius-sm)}
+.wayfind .trail a:hover{color:var(--teal);background:var(--teal-tint)}
+.wayfind .trail .sep{width:15px;height:15px;color:#b5a58c;flex:0 0 auto}
+.wayfind .trail .here{font-weight:700;color:var(--ink);font-size:16px;padding:4px 6px;box-shadow:inset 0 -3px 0 var(--amber)}
+body.has-topbar .hublink,body.has-topbar header.bar.plain,body.has-topbar header.bar>a{display:none!important}
+/* the older hubs: fewer words on each card */
+.feat,.flow-note,.day-h .sub,.day-h .line{display:none!important}
+body.has-topbar header.bar{position:static;background:var(--surface-200);backdrop-filter:none;border-bottom:1px solid var(--line)}
+@media (max-width:640px){.topbar{padding:8px 16px}.topbar .mark{font-size:19px}.topbar .home span{display:none}.wayfind{padding:8px 16px;gap:12px}.wayfind .back{font-size:14.5px;padding:6px 12px 6px 14px}.wayfind .trail li:not(.here){display:none}.wayfind .trail .here{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block}.wayfind .trail{flex-wrap:nowrap}}
+
+/* ---------- hero (hub covers) ---------- */
+.cover{background:var(--teal)!important;color:var(--on-teal)!important;padding-bottom:0!important}
+.cover::before,.cover::after{display:none!important}
+.cover-art,.cover .back,.cover>a{display:none!important}
+.cover{padding-top:18px!important}
+.cover-main{padding-bottom:0}
+.cover-text h1{font-size:clamp(26px,3.4vw,36px)!important;letter-spacing:-.5px!important;margin:2px 0 0!important}
+.cover-text .sub{display:none}
+.cover-text p{font-size:16px!important;margin-top:4px!important}
+.cover .sym{height:52px;max-width:520px}
+.cover .sym svg{width:28px;height:28px}
+.cover-text .eyebrow{color:#c9e2de!important}
+.cover-text .sub{color:#fffdf8!important}
+.cover-text p{color:#c9e2de!important}
+
+/* ---------- the seven floating data symbols ---------- */
+.sym{display:flex;justify-content:space-evenly;align-items:center;height:84px;max-width:720px;margin:0 auto;pointer-events:none}
+.sym svg{width:46px;height:46px;animation:symFloat 7s ease-in-out infinite;flex:0 0 auto}
+.sym svg:nth-child(2){animation-duration:8.4s;animation-delay:-1.3s}
+.sym svg:nth-child(3){animation-duration:6.6s;animation-delay:-2.7s}
+.sym svg:nth-child(4){animation-duration:9.2s;animation-delay:-.6s}
+.sym svg:nth-child(5){animation-duration:7.7s;animation-delay:-3.9s}
+.sym svg:nth-child(6){animation-duration:8.8s;animation-delay:-2.1s}
+.sym svg:nth-child(7){animation-duration:6.9s;animation-delay:-4.6s}
+.sym.light svg{opacity:.6}.sym.dark svg{opacity:.75}
+@keyframes symFloat{0%,100%{transform:translateY(5px) rotate(-3deg)}50%{transform:translateY(-7px) rotate(3deg)}}
+@media (max-width:560px){.sym svg{width:34px;height:34px}.sym{height:64px}}
+
+/* single static symbol used as a card icon */
+.ico[data-ico]{width:52px!important;height:52px!important;border-radius:var(--radius-md)!important;background:var(--teal-tint)!important;display:grid;place-items:center;padding:9px!important}
+.ico[data-ico] svg{width:100%;height:100%}
+
+/* ---------- footer ---------- */
+footer.credit{display:none!important}
+.brandfoot{background:var(--surface-200);border-top:1px solid var(--line);padding:14px 24px;font-family:var(--font-sans);direction:rtl;margin-top:auto}
+.brandfoot .in{max-width:1120px;margin:0 auto;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.brandfoot .logos{display:flex;align-items:center;gap:18px}
+.brandfoot .logos img{height:38px;width:auto;display:block}
+.brandfoot .sym{flex:1;min-width:220px;height:60px}
+.brandfoot .sym svg{width:34px;height:34px}
+.brandfoot .by{font-size:14px;color:var(--ink-muted)}
+.brandfoot .by a{color:var(--teal);font-weight:700;text-decoration:none}
+@media (max-width:760px){.brandfoot .in{justify-content:center;text-align:center}.brandfoot .sym{flex-basis:100%;order:3}}
+
+/* ---------- small "?" help ---------- */
+.help{display:inline-grid;place-items:center;width:26px;height:26px;position:relative;border-radius:50%;border:1.5px solid var(--teal);background:var(--surface-card);color:var(--teal);font:700 13px/1 var(--font-sans);cursor:pointer;padding:0;margin-inline-start:6px;vertical-align:middle;flex:0 0 auto}
+/* a finger needs more than 26px: the invisible ring widens the tap area */
+.help::after{content:"";position:absolute;inset:-8px}
+.help:hover,.help[aria-expanded="true"]{background:var(--teal);color:var(--on-teal)}
+.help-pop{position:absolute;z-index:200;max-width:300px;background:var(--ink);color:#fffdf8;border-radius:var(--radius-md);padding:12px 14px;font:400 14.5px/1.55 var(--font-sans);direction:rtl;text-align:right;box-shadow:0 10px 30px rgba(42,33,27,.3)}
+.help-pop b{color:#f0b95a}
+
+/* ---------- gentle re-skin of shared pieces in the older tools ---------- */
+.panel,.tool,.track,.idcard,.card{border-radius:var(--radius-md)!important;box-shadow:var(--shadow-card)!important}
+.btn,.go,.idcard .save{border-radius:var(--radius-md)!important}
+.btn-brand,.idcard .save{background:var(--brand)!important;box-shadow:none!important;color:var(--on-brand)!important}
+.btn-brand:hover,.idcard .save:hover{background:#8f3d22!important}
+.btn-dark{background:var(--teal)!important}
+.daytag,.day-badge{background:var(--teal)!important;color:var(--on-teal)!important}
+.head .eyebrow{background:var(--teal-tint)!important;color:var(--teal)!important}
+.head{margin-bottom:14px!important}
+.head h1{font-size:clamp(24px,3vw,32px)!important;letter-spacing:-.5px!important;margin-top:6px!important}
+.head p{margin-top:6px!important;font-size:15px!important;max-width:720px!important}
+.wrap{padding-top:16px!important}
+/* dictation button: icon drawn in CSS (no emoji) */
+.mic::before{content:"";display:block;width:16px;height:16px;background:currentColor;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Crect x='9' y='3' width='6' height='11' rx='3'/%3E%3Cpath d='M5 11a7 7 0 0014 0M12 18v3'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Crect x='9' y='3' width='6' height='11' rx='3'/%3E%3Cpath d='M5 11a7 7 0 0014 0M12 18v3'/%3E%3C/svg%3E") center/contain no-repeat}
+
+/* attention ring for the card to click: slow and soft, never a flash */
+.blink{outline:4px solid rgba(217,154,43,0);outline-offset:3px;animation:softRing 2.8s ease-in-out infinite}
+@keyframes softRing{0%,100%{outline-color:rgba(217,154,43,0)}50%{outline-color:rgba(217,154,43,.85)}}
+
+/* "what's next" guide: the same soft ring, on whichever button is the next step */
+.nudge{outline:4px solid rgba(217,154,43,0);outline-offset:3px;animation:softRing 2.2s ease-in-out infinite}
+.wayfind .back.nudge{outline-offset:2px}
+.nexttag,.donetag{position:absolute;bottom:24px;left:24px;font:700 13.5px var(--font-sans);border-radius:var(--radius-pill);padding:3px 14px}
+.nexttag{background:var(--amber);color:var(--ink)}
+.donetag{background:#e7f4ec;color:var(--success)}
+@media (prefers-reduced-motion:reduce){.sym svg,.blink,.nudge{animation:none!important}.nudge{outline-color:rgba(217,154,43,.85)}}
+.wayfind ::selection,.topbar ::selection{background:var(--amber);color:var(--ink)}
+@media print{.wayfind,.topbar,.brandfoot,.help,.help-pop{display:none!important}}
