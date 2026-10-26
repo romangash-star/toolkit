@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מיפוי מקורות המידע — קבלת החלטות מבוססת נתונים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alef:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/dd.css?v=27">
+<style>
+  .wrap{max-width:900px}
+  body{padding-bottom:62px}
+  .qbox{border:1.5px solid var(--teal,#1f5f5b);background:var(--teal-tint,#dcedea);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:16px;line-height:1.6}
+  .qbox .ql{font-size:13px;font-weight:700;color:var(--teal,#1f5f5b);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .qbox .ql a{color:var(--teal,#1f5f5b)}
+  .qbox.missing{border-color:var(--warning,#9a6514);background:#fbf1e0}
+  .grp>h2{flex-wrap:wrap}
+  .grp>h2 .cnt{margin-inline-start:auto;white-space:nowrap;font-size:13px;font-weight:700;color:var(--ink-soft);background:var(--paper);border-radius:999px;padding:2px 12px}
+  .rows{display:flex;flex-direction:column;gap:8px}
+  .row{display:grid;grid-template-columns:2fr 1.3fr 1.3fr 38px;gap:8px;align-items:center}
+  .row.r4{grid-template-columns:2fr 1.2fr 1.1fr 1.25fr 38px}
+  .row.heads{align-items:end}
+  .row.heads{font-size:12.5px;font-weight:700;color:var(--ink-soft);padding:0 2px}
+  .row .del{width:38px;height:38px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink-soft);font-weight:700}
+  .row .del:hover{border-color:var(--danger,#a8362d);color:var(--danger,#a8362d)}
+  .add{margin-top:10px}
+  .sites{display:flex;gap:7px;flex-wrap:wrap;margin:4px 0 12px}
+  .sites button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font-weight:700;font-size:13.5px;color:var(--teal,#1f5f5b)}
+  .sites button:hover{border-color:var(--teal,#1f5f5b);background:var(--teal-tint,#dcedea)}
+  .steps2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .stepbtn{display:flex;align-items:center;gap:12px;border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px 16px;font-weight:700;font-size:17px;color:var(--ink-soft);text-align:right;cursor:pointer;transition:.15s}
+  .stepbtn:hover{border-color:var(--teal,#1f5f5b);color:var(--ink)}
+  .stepbtn .sn{width:40px;height:40px;border-radius:50%;background:var(--line);color:var(--ink);display:grid;place-items:center;font-size:21px;flex:0 0 auto}
+  .stepbtn small{display:block;font-weight:400;font-size:13.5px}
+  .stepbtn.on{background:var(--brand);border-color:var(--brand);color:#fffdf8}
+  .stepbtn.on .sn{background:#fffdf8;color:var(--brand)}
+  .search{display:flex;gap:8px;align-items:center;margin-top:6px}
+  .search input{flex:1}
+  .sitegrp{font-size:13px;font-weight:700;color:var(--teal,#1f5f5b);letter-spacing:.5px;margin:18px 0 8px}
+  .site{display:grid;grid-template-columns:1fr auto;gap:6px 14px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;background:#fff}
+  .site.added{border-color:var(--success,#2e7d4f);background:#f1f8f3}
+  .site h3{font-size:17px}
+  .site p{margin:2px 0 0;font-size:14px;color:var(--ink-soft)}
+  .site .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .nextrow{display:flex;gap:10px;margin-top:14px}
+  .nextrow .btn{flex:1;padding:13px;font-size:16px}
+  @media (max-width:700px){.steps2{grid-template-columns:1fr}.site{grid-template-columns:1fr}.site .acts{justify-content:flex-start}.search{flex-wrap:wrap}}
+  .finish{border:2px solid var(--brand)!important;background:var(--brand-tint,#f4ded3)!important}
+  .finishbar{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:10px}
+  .finishbar .btn{padding:14px 10px;font-size:16px;white-space:normal}
+  @media (max-width:700px){.finishbar{grid-template-columns:1fr 1fr}}
+  /* export is always within reach */
+  .savebar{position:fixed;bottom:0;right:0;left:0;z-index:60;background:var(--surface-card,#fffdf8);border-top:2px solid var(--brand);box-shadow:0 -6px 24px rgba(42,33,27,.12);padding:10px 16px}
+  .savebar .in{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .savebar .msg{font-size:14px;font-weight:700;flex:1;min-width:200px;display:flex;align-items:center}
+  .savebar .btn{padding:9px 14px}
+  @media (max-width:700px){
+    .row{grid-template-columns:1fr 38px;border:1px solid var(--line);border-radius:12px;padding:8px;background:var(--paper)}
+    .row input:nth-of-type(1){grid-column:1}.row .del{grid-row:1;grid-column:2}
+    .row.r4{grid-template-columns:1fr 38px}
+    .row input:nth-of-type(2),.row input:nth-of-type(3),.row select{grid-column:1 / -1}
+    .row.heads{display:none}
+    .savebar{padding:8px 10px}.savebar .in{gap:6px}.savebar .msg{flex-basis:100%;font-size:13px}.savebar .btn{flex:1;padding:8px 4px;font-size:13px}.savebar .wide-only{display:none}
+    body{padding-bottom:84px}
+  }
+  @media print{.savebar,.add,.sites,.del,.noprint{display:none!important}body{padding-bottom:0}}
+</style>
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="stylesheet" href="../../assets/site.css?v=27">
+</head>
+<body>
+  <header class="bar">
+    <div class="brand">מיפוי מקורות המידע</div>
+    <span class="daytag">יום 1</span>
+    <a class="hublink" href="../">‹ כל הכלים</a>
+  </header>
+
+  <main class="wrap" id="app"></main>
+
+  <div class="savebar noprint">
+    <div class="in">
+      <div class="msg">שמרו עותק אצלכם <button type="button" class="help" aria-label="הסבר" data-help="האתר שומר את מה שכתבתם <b>רק בדפדפן הזה</b>. במחשב אחר, או אחרי ניקוי הדפדפן, זה לא יהיה שם. לכן כדאי לייצא: <b>Word</b> למסמך, <b>מייל</b> כדי לשלוח לעצמכם, או <b>קובץ</b> שאפשר לטעון בחזרה לאתר.">?</button></div>
+      <button class="btn btn-brand" onclick="S.doc()">Word</button>
+      <button class="btn btn-ghost" onclick="S.mail()">מייל לעצמי</button>
+      <button class="btn btn-ghost" onclick="S.copyAll()">העתקה</button>
+      <button class="btn btn-ghost wide-only" onclick="window.print()">הדפסה</button>
+      <button class="btn btn-ghost" onclick="S.saveJson()">קובץ</button>
+      <button class="btn btn-ghost" onclick="S.loadJson()">טעינה</button>
+    </div>
+  </div>
+
+  <footer class="credit"><span>נבנה ע"י רומן גרינשטיין</span></footer>
+  <div class="toast" id="toast"></div>
+
+<script src="../assets/dd.js?v=27"></script>
+<script>
+const S=(()=>{
+  'use strict';
+  const LS='dd_sources_v3', E=DD.esc;
+  /* three places a piece of data can be: with us, on a public site, or still to be obtained */
+  const GROUPS=[
+    {k:'have', n:1, t:'נתונים שכבר יש לנו ברשות',
+     lead:'קבצים, דוחות ומערכות שכבר קיימים אצלכם או אצל עמיתים.',
+     help:'כל נתון שכבר נאסף ברשות ויכול לעזור לענות על השאלה: דוח ממערכת המוקד, קובץ אקסל של המחלקה, נתוני גבייה. כותבים מה הנתון, איפה הוא יושב, ומי האדם שאפשר לפנות אליו.',
+     cols:['הנתון','איפה הוא נמצא','אצל מי'], ph:['פניות למוקד לפי אזור וקטגוריה','מערכת המוקד 106','מנהלת המוקד'], anon:true},
+    {k:'pub', n:2, t:'נתונים באתרים ציבוריים',
+     lead:'נתונים פתוחים שכל אחד יכול להוריד. הם נותנים למה להשוות.',
+     help:'נתונים שלא שייכים לרשות אבל זמינים לכולם: הלמ״ס, data.gov.il, משרדי ממשלה. הם חשובים כדי להשוות את הרשות שלכם לאחרות. לחיצה על שם של אתר מוסיפה אותו לרשימה.',
+     cols:['הנתון','באיזה אתר','קישור'], ph:['מספר תושבים לפי אזור סטטיסטי','הלמ״ס','https://']},
+    {k:'need', n:3, t:'נתונים שעוד צריך להשיג',
+     lead:'מה חסר כדי לענות על השאלה, וממי מבקשים.',
+     help:'נתונים שאתם יודעים שצריך, אבל עדיין לא בידיכם: צריך לבקש ממחלקה אחרת, מספק, או לאסוף מחדש. כותבים ממי מבקשים ועד מתי, כדי שזה באמת יקרה לפני המפגש הבא.',
+     cols:['הנתון','ממי מבקשים','עד מתי'], ph:['זמני טיפול של תאגיד המים','מנהל התפעול בתאגיד','עד המפגש הבא']}
+  ];
+  /* step 1: the sites participants browse. `scope` is what the "search inside" button restricts Google to. */
+  const SITES=[
+    {g:'ארצי', n:'הרשויות המקומיות בישראל (הלמ״ס)', d:'פרופיל לכל רשות: אוכלוסייה, חינוך, רווחה וכספים. טוב להשוואה בין רשויות.', u:'https://data.cbs.gov.il/muni/home', scope:'site:cbs.gov.il רשויות מקומיות'},
+    {g:'ארצי', n:'מפקד האוכלוסין (הלמ״ס)', d:'מי גר איפה, לפי יישוב ואזור.', u:'https://census.cbs.gov.il/he', scope:'site:cbs.gov.il מפקד האוכלוסין'},
+    {g:'ארצי', n:'הלשכה המרכזית לסטטיסטיקה', d:'האתר הראשי של הלמ״ס: הסטטיסטיקה הרשמית של ישראל.', u:'https://www.cbs.gov.il', scope:'site:cbs.gov.il'},
+    {g:'ארצי', n:'שקיפות בחינוך (משרד החינוך)', d:'נתונים על בתי ספר ועל מערכת החינוך ברשות.', u:'https://shkifut.education.gov.il/home', scope:'site:education.gov.il שקיפות'},
+    {g:'ארצי', n:'פורטל הנתונים הפתוחים, data.gov.il', d:'מאגרי מידע של משרדי הממשלה, להורדה חופשית.', u:'https://data.gov.il', scope:'site:data.gov.il'},
+    {g:'ארצי', n:'נתוני רשויות: דמוגרפיה', d:'נתונים דמוגרפיים לפי רשות מקומית.', u:'https://municipal-data.org/demographics', scope:'site:municipal-data.org'},
+    {g:'ארצי', n:'רשות המסים', d:'מידע ופרסומים של רשות המסים.', u:'https://www.gov.il/he/departments/israel_tax_authority', scope:'site:gov.il רשות המסים'},
+    {g:'ארצי', n:'משרד התחבורה והבטיחות בדרכים', d:'מידע ופרסומים של משרד התחבורה.', u:'https://www.gov.il/he/departments/ministry_of_transport_and_road_safety', scope:'site:gov.il משרד התחבורה'}
+  ];
+  const blank=()=>['','',''];
+  const ANON_OPTS=['אין בו פרטים מזהים','צריך התממה','כבר מותמם'];
+  const ANON_HELP='<b>התממה</b> = מסירים כל פרט שמאפשר לזהות אדם. <b>מזהים ישירים מוחקים</b>: שם, ת״ז, טלפון, מייל, כתובת מלאה. <b>מזהים עקיפים מכלילים</b>: גיל ← טווח גילים, כתובת ← יישוב, תאריך ← חודש. קבוצה של פחות מ-5 אנשים מאחדים עם קבוצה אחרת.';
+  function fresh(){ return {step:1, term:'', have:[blank(),blank(),blank()], pub:[blank(),blank()], need:[blank(),blank()], imported:false}; }
+  let data=DD.load(LS,fresh());
+  function save(){ DD.save(LS,data); }
+
+  const question=()=>DD.businessQuestion();
+  /* the directions jotted in part 3 of the question builder come along as starting rows, once */
+  function importFromBuilder(){
+    if(data.imported) return;
+    data.imported=true;
+    const ideas=DD.builderIdeas(), empty=k=>data[k].every(r=>r.every(c=>!c));
+    if(ideas.internal.length && empty('have')) data.have=ideas.internal.map(x=>[x,'','']);
+    if(ideas.open.length && empty('pub')) data.pub=ideas.open.map(x=>['',x,'']);
+    if(ideas.field.length && empty('need')) data.need=ideas.field.map(x=>[x,'','']);
+    save();
+  }
+  const filled=k=>data[k].filter(r=>r[0].trim());
+  const countLabel=k=>{ const n=filled(k).length; return n===0?'עוד לא מולא':n===1?'נתון אחד':n+' נתונים'; };
+
+  function render(){
+    const q=question(), phone=window.matchMedia('(max-width:700px)').matches;
+    document.getElementById('app').innerHTML=`
+      <div class="head">
+        <div class="eyebrow">יום 1 · שלב 5 · שיעורי בית</div>
+        <h1>מיפוי מקורות המידע</h1>
+        <p>איפה נמצאים הנתונים שיעזרו לענות על השאלה שלכם? עכשיו רק <b>מאתרים</b>. את הניתוח נעשה במפגש הבא.</p>
+      </div>
+      <div class="qbox ${q?'':'missing'}">${q
+        ? `<div class="ql"><span>האתגר משולחן העבודה שלכם</span><a href="../question/">לעריכה ←</a></div>${E(q)}`
+        : `<div class="ql"><span>עדיין אין אתגר משולחן העבודה</span><a href="../question/">לבונה האתגר משולחן העבודה ←</a></div>אפשר למלא גם בלי, אבל קל יותר לחפש נתונים כשהשאלה מול העיניים.`}</div>
+      <div class="steps2 noprint">
+        <button class="stepbtn ${data.step===1?'on':''}" onclick="S.go(1)"><span class="sn">1</span><span>משוטטים באתרים<small>מה קיים בחוץ</small></span></button>
+        <button class="stepbtn ${data.step===2?'on':''}" onclick="S.go(2)"><span class="sn">2</span><span>ממפים את המקורות<small>מה יש, מה ציבורי, מה חסר</small></span></button>
+      </div>
+      ${data.step===1 ? `
+      <div class="panel">
+        <h2><span class="num">1</span>משוטטים באתרים${DD.help('לפני שממלאים רשימה, מסתכלים מה בכלל קיים. פותחים כל אתר, מסתכלים חמש דקות, ושואלים: יש כאן משהו שעוזר לענות על השאלה שלי? אתר שמצאתם בו משהו, מוסיפים לרשימה בלחיצה.')}</h2>
+        <p class="lead">פותחים, מסתכלים, ובודקים אם יש שם נתון שעוזר לשאלה שלכם. מה שמצאתם מוסיפים לרשימה.</p>
+        <div class="field-label">מה מחפשים?${DD.help('כתבו מילה או שתיים מהשאלה שלכם, למשל ״פניות מוקד״ או ״ארנונה״. הכפתור <b>חיפוש באתר</b> ליד כל אתר יפתח חיפוש בגוגל של המילים האלה בתוך אותו אתר בלבד.')}</div>
+        <div class="search"><input class="txt" id="term" aria-label="מה מחפשים" value="${E(data.term)}"></div>
+        ${['ארצי'].map(grp=>`<div class="sitegrp">${grp}</div>`+SITES.map((x,i)=>x.g!==grp?'':`
+          <div class="site ${inList(i)?'added':''}">
+            <div><h3>${x.n}</h3><p>${x.d}</p></div>
+            <div class="acts">
+              <a class="btn btn-dark btn-sm" href="${x.u}" target="_blank" rel="noopener">פתיחת האתר ↗</a>
+              <button class="btn btn-ghost btn-sm" onclick="S.search(${i})">חיפוש באתר</button>
+              <button class="btn btn-ghost btn-sm" onclick="S.site(${i})">${inList(i)?'✓ ברשימה':'+ לרשימה שלי'}</button>
+            </div>
+          </div>`).join('')).join('')}
+        <div class="nextrow"><button class="btn btn-brand" onclick="S.go(2)">ממשיכים לשלב 2: ממפים את המקורות ←</button></div>
+      </div>` : `
+      ${GROUPS.map(g=>`
+        <div class="panel grp">
+          <h2><span class="num">${g.n}</span>${g.t}${DD.help(g.help)}<span class="cnt">${countLabel(g.k)}</span></h2>
+          <p class="lead">${g.lead}</p>
+          <div class="rows">
+            <div class="row heads ${g.anon?'r4':''}">${g.cols.map(c=>`<span>${c}</span>`).join('')}${g.anon?`<span>אפשר להשתמש?${DD.help(ANON_HELP)}</span>`:''}<span></span></div>
+            ${data[g.k].map((r,i)=>`<div class="row ${g.anon?'r4':''}">
+              ${r.slice(0,3).map((c,j)=>`<input class="txt" data-c="${g.k}-${i}-${j}" placeholder="${E(phone ? g.cols[j] : '')}" aria-label="${E(g.cols[j])}" value="${E(c)}">`).join('')}
+              ${g.anon?`<select class="txt" data-a="${i}" aria-label="אפשר להשתמש בנתון?"><option value="">התממה?</option>${ANON_OPTS.map(o=>`<option ${r[3]===o?'selected':''}>${o}</option>`).join('')}</select>`:''}
+              <button class="del" onclick="S.del('${g.k}',${i})" title="מחיקת השורה">✕</button></div>`).join('')}
+          </div>
+          <button class="btn btn-ghost btn-sm add" onclick="S.add('${g.k}')">+ עוד נתון</button>
+        </div>`).join('')}
+      <div class="panel finish noprint">
+        <h2>סיימתם? שמרו את מה שכתבתם${DD.help('האתר שומר את הרשימה <b>רק בדפדפן הזה</b>. כדי שתהיה אצלכם גם בבית ובמפגש הבא, ייצאו אותה: <b>Word</b> למסמך, <b>מייל לעצמי</b> כדי לשלוח לעצמכם, או <b>קובץ</b> שאפשר לטעון בחזרה לאתר.')}</h2>
+        <p class="lead">זו המשימה שאתם לוקחים הביתה. ייצאו עותק לפני שסוגרים את הדף.</p>
+        <div class="finishbar">
+          <button class="btn btn-brand" onclick="S.doc()">ייצוא ל-Word</button>
+          <button class="btn btn-dark" onclick="S.mail()">מייל לעצמי</button>
+          <button class="btn btn-ghost" onclick="S.copyAll()">העתקה</button>
+          <button class="btn btn-ghost" onclick="S.saveJson()">שמירה כקובץ</button>
+        </div>
+        <div style="margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="S.go(1)">→ חזרה לשיטוט באתרים</button></div>
+      </div>
+      <div class="callout info"><b>המשימה למפגש הבא:</b> מאתרים מקורות מידע לשאלה שלכם, <b>מתממים</b> את הקבצים הפנימיים עוד לפני שהם יוצאים מהמחשב, ומביאים אותם למפגש. ננתח אותם יחד בעזרת AI. <a href="../anonymize/">לכלי ההתממה ←</a>${DD.help(ANON_HELP)}</div>`}`;
+    const term=document.getElementById('term'); if(term) term.addEventListener('input',()=>{ data.term=term.value; save(); });
+    document.querySelectorAll('[data-a]').forEach(el=>el.addEventListener('change',()=>{ data.have[+el.dataset.a][3]=el.value; save(); }));
+    document.querySelectorAll('[data-c]').forEach(el=>el.addEventListener('input',()=>{
+      const[k,i,j]=el.dataset.c.split('-'); data[k][+i][+j]=el.value; save();
+      const cnt=el.closest('.grp').querySelector('.cnt'); if(cnt) cnt.textContent=countLabel(k);
+    }));
+  }
+  function add(k){ data[k].push(blank()); save(); render(); const all=document.querySelectorAll(`[data-c^="${k}-${data[k].length-1}-"]`); if(all[0]) all[0].focus(); }
+  function del(k,i){ data[k].splice(i,1); if(!data[k].length) data[k].push(blank()); save(); render(); }
+  const inList=i=>data.pub.some(r=>r[2]===SITES[i].u);
+  function go(n){ data.step=n; save(); render(); window.scrollTo({top:0,behavior:'smooth'}); }
+  function search(i){
+    const t=(data.term||'').trim();
+    if(!t){ DD.toast('כתבו קודם מה מחפשים'); const el=document.getElementById('term'); if(el) el.focus(); return; }
+    window.open('https://www.google.com/search?q='+encodeURIComponent(SITES[i].scope+' '+t),'_blank','noopener');
+  }
+  function site(i){
+    if(inList(i)){ DD.toast('האתר כבר ברשימה שלכם'); return; }
+    const x=SITES[i], row=[(data.term||'').trim(),x.n,x.u], empty=data.pub.findIndex(r=>r.every(c=>!c));
+    if(empty>-1) data.pub[empty]=row; else data.pub.push(row);
+    save(); render(); DD.toast('נוסף לרשימה. בשלב 2 תכתבו איזה נתון מצאתם שם');
+  }
+
+  /* ---------- export ---------- */
+  function asText(){
+    const L=['מיפוי מקורות המידע'+(DD.identity()?' · '+DD.identity():''),''], q=question();
+    if(q) L.push('האתגר משולחן העבודה:',q,'');
+    GROUPS.forEach(g=>{
+      L.push(g.n+'. '+g.t);
+      const rows=filled(g.k);
+      if(!rows.length) L.push('   —');
+      rows.forEach(r=>L.push('   • '+r[0]+(r[1]?' | '+g.cols[1]+': '+r[1]:'')+(r[2]?' | '+g.cols[2]+': '+r[2]:'')+(g.anon&&r[3]?' | התממה: '+r[3]:'')));
+      L.push('');
+    });
+    return L.join('\n');
+  }
+  function doc(){
+    const q=question();
+    let b='<h1>מיפוי מקורות המידע</h1><p>'+E(DD.identity())+'</p>';
+    if(q) b+='<h2>האתגר משולחן העבודה</h2><p style="font-size:15px">'+E(q)+'</p>';
+    GROUPS.forEach(g=>{
+      const rows=filled(g.k);
+      const cols=g.anon?g.cols.concat('התממה'):g.cols;
+      b+='<h2>'+g.n+'. '+g.t+'</h2><table><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr>'+
+        (rows.length?rows.map(r=>'<tr>'+cols.map((c,j)=>'<td>'+E(r[j]||'')+'</td>').join('')+'</tr>').join(''):'<tr><td colspan="'+cols.length+'">—</td></tr>')+'</table>';
+    });
+    DD.downloadDoc('מיפוי מקורות המידע','מיפוי מקורות המידע',b); DD.toast('המסמך הורד');
+  }
+  function copyAll(){ DD.copy(asText()); }
+  function mail(){
+    const body=asText();
+    // very long mailto links are cut by some mail programs; the clipboard copy is the safety net
+    if(navigator.clipboard) navigator.clipboard.writeText(body).catch(()=>{});
+    location.href='mailto:?subject='+encodeURIComponent('מיפוי מקורות המידע שלי')+'&body='+encodeURIComponent(body.slice(0,1800));
+    DD.toast('נפתח מייל חדש. הטקסט גם הועתק, אפשר להדביק');
+  }
+  function saveJson(){ DD.download('מיפוי מקורות המידע.json', JSON.stringify(data,null,2)); DD.toast('הקובץ הורד. אפשר לטעון אותו בחזרה בכפתור "טעינה"'); }
+  function loadJson(){ DD.loadFile(d=>{ data=Object.assign(fresh(),d,{imported:true}); save(); render(); }); }
+
+  importFromBuilder(); render();
+  return {go,search,add,del,site,doc,copyAll,mail,saveJson,loadJson};
+})();
+</script>
+<script src="../../assets/site.js?v=27" data-crumbs='כל ההכשרות|../../;קבלת החלטות מבוססת נתונים|../'></script>
+</body>
+</html>
