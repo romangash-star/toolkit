@@ -1,0 +1,172 @@
+/* RomanAI site shell, loaded by every page:
+   1. Top strip: RomanAI wordmark + a clear way back. Configure on the script tag:
+        data-crumbs='כל ההכשרות|../../;קבלת החלטות מבוססת נתונים|../'   (label|href pairs, outermost first)
+      The last pair is where the "חזרה" button goes. href "auto" resolves from ?from=maazim|ai.
+   2. The seven floating data symbols (brand signature): in every hero (.cover / [data-sym]) and in the footer.
+   3. Footer: symbols strip and credit.
+   4. Small "?" help: <button class="help" data-help="הסבר קצר">?</button> (or SiteHelp.html('...') in templates). */
+(function(){
+  'use strict';
+  var me=document.currentScript, base=new URL('.', me.src).href;   // .../assets/
+
+  /* ---------- data symbols ---------- */
+  function symbols(dark){
+    var a=dark?'#FFFDF8':'#1F5F5B', b=dark?'#C9E2DE':'#B4502F', c=dark?'#F0B95A':'#D99A2B';
+    var S={
+      bars:'<path d="M8 40V26M18 40V14M28 40V22M38 40V8" stroke="'+a+'" stroke-width="5" stroke-linecap="round"/><path d="M4 42h40" stroke="'+b+'" stroke-width="2.5" stroke-linecap="round"/>',
+      table:'<rect x="6" y="8" width="36" height="32" rx="5" stroke="'+b+'" stroke-width="3" fill="none"/><path d="M6 18h36M6 29h36M19 8v32" stroke="'+b+'" stroke-width="2.5"/><rect x="6" y="8" width="36" height="10" rx="5" fill="'+a+'" opacity=".55"/>',
+      line:'<path d="M6 36l10-10 8 6 16-18" stroke="'+a+'" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="14" r="4" fill="'+c+'"/><path d="M4 42h40" stroke="'+b+'" stroke-width="2.5" stroke-linecap="round"/>',
+      donut:'<circle cx="24" cy="24" r="15" stroke="'+b+'" stroke-width="7" fill="none" opacity=".45"/><path d="M24 9a15 15 0 0 1 14.3 19.6" stroke="'+c+'" stroke-width="7" fill="none"/>',
+      scatter:'<path d="M6 6v36h36" stroke="'+b+'" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="14" cy="32" r="3.5" fill="'+a+'"/><circle cx="22" cy="26" r="3.5" fill="'+a+'"/><circle cx="30" cy="20" r="3.5" fill="'+c+'"/><circle cx="37" cy="12" r="3.5" fill="'+a+'"/>',
+      pin:'<path d="M24 43s13-12.5 13-23a13 13 0 0 0-26 0c0 10.5 13 23 13 23z" stroke="'+a+'" stroke-width="3.5" fill="none"/><circle cx="24" cy="20" r="5" fill="'+c+'"/>',
+      db:'<ellipse cx="24" cy="12" rx="14" ry="5" stroke="'+b+'" stroke-width="3" fill="none"/><path d="M10 12v24c0 2.8 6.3 5 14 5s14-2.2 14-5V12M10 24c0 2.8 6.3 5 14 5s14-2.2 14-5" stroke="'+b+'" stroke-width="3" fill="none"/>'
+    };
+    return S;
+  }
+  var ORDER=['bars','table','line','donut','scatter','pin','db'];
+  function one(name,dark){ return '<svg viewBox="0 0 48 48" fill="none" aria-hidden="true">'+(symbols(dark)[name]||symbols(dark).bars)+'</svg>'; }
+  function strip(dark){ return '<div class="sym '+(dark?'dark':'light')+'" aria-hidden="true">'+ORDER.map(function(n){ return one(n,dark); }).join('')+'</div>'; }
+  function paintIcons(root){
+    (root||document).querySelectorAll('[data-ico]').forEach(function(el){ if(!el.firstChild) el.innerHTML=one(el.dataset.ico,false); });
+    (root||document).querySelectorAll('[data-sym]').forEach(function(el){ if(!el.firstChild) el.innerHTML=strip(el.dataset.sym==='dark'); });
+  }
+
+  /* ---------- top strip ---------- */
+  function topbar(){
+    var conf=me.dataset.crumbs, home=me.dataset.home||'./';
+    var pairs=conf?conf.split(';').map(function(p){ var a=p.split('|'); return {t:a[0],h:a[1]}; }):[];
+    pairs.forEach(function(p){
+      if(p.h!=='auto') return;
+      var from=new URLSearchParams(location.search).get('from');
+      if(from==='maazim'){ p.t='מאיצים דיגיטליים'; p.h='../maazim/'; } else { p.t='הכשרת בינה מלאכותית'; p.h='../ai/'; }
+    });
+    if(pairs.length) home=pairs[0].h;
+    /* two layers: the brand band, then a sticky way-finding row with one big "back" and the path */
+    var ARROW='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    var CHEV='<svg class="sep" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 4l-4 4 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    var HOUSE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v8.5a1.5 1.5 0 01-1.5 1.5H15v-6H9v6H5.5A1.5 1.5 0 014 19.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
+    var band=document.createElement('nav'); band.className='topbar'; band.setAttribute('aria-label','RomanAI');
+    band.innerHTML='<a class="mark" href="'+home+'" title="לדף הבית">Roman<span>AI</span></a>'+
+      (pairs.length?'<a class="home" href="'+home+'">'+HOUSE+'<span>'+pairs[0].t+'</span></a>':'');
+    document.body.insertBefore(band,document.body.firstChild);
+    if(pairs.length){
+      var up=pairs[pairs.length-1], here=me.dataset.here||document.title.split(/[—·]/)[0].trim();
+      var way=document.createElement('nav'); way.className='wayfind'; way.setAttribute('aria-label','איפה אני');
+      way.innerHTML='<a class="back" href="'+up.h+'">'+ARROW+'<span><small>חזרה ל</small>'+up.t+'</span></a>'+
+        '<ol class="trail">'+pairs.map(function(p){ return '<li><a href="'+p.h+'">'+p.t+'</a>'+CHEV+'</li>'; }).join('')+
+        '<li class="here" aria-current="page">'+here+'</li></ol>';
+      band.insertAdjacentElement('afterend',way);
+    }
+    document.body.classList.add('has-topbar');
+    /* a tool header that only repeats the page title is noise; keep it when it holds controls */
+    document.querySelectorAll('header.bar').forEach(function(h){
+      if(!h.querySelector('.bar-actions,.steps,button')) h.classList.add('plain');
+    });
+  }
+
+  /* ---------- hero + footer ---------- */
+  function hero(){
+    document.querySelectorAll('.cover').forEach(function(c){ c.insertAdjacentHTML('beforeend',strip(true)); });
+  }
+  function footer(){
+    var f=document.createElement('footer'); f.className='brandfoot';
+    f.innerHTML='<div class="in">'+
+      strip(false)+
+      '<div class="by">נבנה ע"י רומן גרינשטיין · <a href="mailto:romangash@gmail.com">romangash@gmail.com</a></div></div>';
+    var old=document.querySelector('footer.credit');
+    if(old) old.parentNode.insertBefore(f,old); else document.body.appendChild(f);
+  }
+
+  /* ---------- "?" help ---------- */
+  var pop=null, openBtn=null;
+  function closeHelp(){ if(pop){ pop.remove(); pop=null; } if(openBtn){ openBtn.setAttribute('aria-expanded','false'); openBtn=null; } }
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('.help');
+    if(!b){ closeHelp(); return; }
+    e.preventDefault(); e.stopPropagation();
+    if(openBtn===b){ closeHelp(); return; }
+    closeHelp();
+    pop=document.createElement('div'); pop.className='help-pop'; pop.setAttribute('role','tooltip'); pop.innerHTML=b.dataset.help;
+    document.body.appendChild(pop);
+    var r=b.getBoundingClientRect(), w=pop.offsetWidth;
+    var left=Math.min(Math.max(8, r.left+r.width/2-w/2), document.documentElement.clientWidth-w-8);
+    pop.style.left=(left+window.scrollX)+'px'; pop.style.top=(r.bottom+8+window.scrollY)+'px';
+    openBtn=b; b.setAttribute('aria-expanded','true');
+  });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeHelp(); });
+  function helpHtml(text){ return '<button type="button" class="help" aria-label="הסבר" aria-expanded="false" data-help="'+String(text).replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'">?</button>'; }
+
+  /* help marks for the older tools, whose markup is rendered by their own scripts */
+  var AUTO=[
+    ['[data-page="role-worksheet"] .titles h1','דף עבודה אישי. ממלאים שלושה חלקים, ובסוף לוחצים <b>תמונה</b> כדי להוריד. בצד יש טיימר לתרגיל: בוחרים 3, 5 או 7 דקות ולוחצים <b>התחל</b>.'],
+    ['[data-page="role-worksheet"] .s1 .sh h3','שם התפקיד כמו שהייתם מציגים אותו למישהו מחוץ לרשות. משפט אחד מספיק.'],
+    ['[data-page="role-worksheet"] .s2 .sh h3','דברים שלוקחים ימים או שבועות ושיש להם תוצר: דוח, תוכנית, מכרז, אירוע.'],
+    ['[data-page="role-worksheet"] .s3 .sh h3','דברים קטנים שחוזרים כל יום או כל שבוע: מיילים, פניות, עדכון טבלאות.'],
+    ['[data-page="role-worksheet"] .aihint','הכפתור <b>AI</b> ליד כל משימה מסמן אותה כמשימה שבה AI יכול לעזור. אפשר לסמן ולבטל.'],
+    ['[data-page="insight"] .checks-head h3','חמש שאלות ששואלים על כל תובנה לפני שסומכים עליה. מסמנים כל בדיקה שעשיתם, וכותבים מה מצאתם.']
+  ];
+  var autoTimer;
+  function autoHelp(){
+    AUTO.forEach(function(a){
+      document.querySelectorAll(a[0]).forEach(function(el){ if(!el.querySelector('.help')) el.insertAdjacentHTML('beforeend',helpHtml(a[1])); });
+    });
+  }
+  /* ---------- gentle "what's next" guide ----------
+     On a tool: after NUDGE seconds on the same step, the step's main button starts to glow
+     (the wizard's "next", otherwise the export button). Once the participant has exported,
+     the "back" button glows instead. On a hub: the first tool not yet exported glows, and
+     finished ones get a small check. Nothing moves or pops up; it is only a soft ring.
+     ?nudge=5 in the address shortens the wait to 5 seconds (for demos and tests). */
+  var PROGRESS='site_progress';
+  var EXPORT_SEL=['exportPNG','exportFile','.doc(','docQuestion','mail(','copyAll(','saveJson(','saveFile(','copyText(','copyPrompt','toGemini','toCopilot','window.print']
+        .map(function(k){ return 'button[onclick*="'+k+'"]'; }).concat('button[onclick="App.copy()"]').join(',');
+  function norm(p){ p=p.replace(/index\.html$/,''); return p.charAt(p.length-1)==='/'?p:p+'/'; }
+  function progress(){ try{ return JSON.parse(localStorage.getItem(PROGRESS)||'{}'); }catch(e){ return {}; } }
+  function visible(el){ return !!el && el.offsetParent!==null; }
+  function hubGuide(){
+    var cards=[].slice.call(document.querySelectorAll('a.cardlink, a.tool')), done=progress(), next=null;
+    cards.forEach(function(a){
+      if(done[norm(a.pathname)]){ a.classList.add('done-step'); if(!a.querySelector('.donetag')) a.insertAdjacentHTML('beforeend','<span class="donetag">✓ בוצע</span>'); }
+      else if(!next) next=a;
+    });
+    if(next && Object.keys(done).length){ next.classList.add('nudge'); next.insertAdjacentHTML('beforeend','<span class="nexttag">השלב הבא</span>'); }
+    else if(next){ next.classList.add('nudge'); }
+  }
+  function toolGuide(){
+    var wait=(+new URLSearchParams(location.search).get('nudge')||300)*1000;
+    var here=norm(location.pathname), elapsed=0, last=Date.now(), stage=null, exported=!!progress()[here];
+    function stageKey(){ var s=document.querySelector('.stepbtn.on, .tabs button.on'); return s?s.textContent:''; }
+    function mainButton(){
+      var next=document.querySelector('.navrow .next'); if(visible(next)) return next;          // wizard: keep going
+      var ex=[].slice.call(document.querySelectorAll(EXPORT_SEL)).filter(visible);
+      if(ex.length) return ex.filter(function(b){ return b.classList.contains('btn-brand'); })[0]||ex[0];
+      var tab=document.querySelector('.tabs button.on + button'); return visible(tab)?tab:null;   // tabbed tool: next tab
+    }
+    function clear(){ [].forEach.call(document.querySelectorAll('.nudge'),function(e){ e.classList.remove('nudge'); }); }
+    function glow(el){ if(el && !el.classList.contains('nudge')){ clear(); el.classList.add('nudge'); } }
+    document.addEventListener('click',function(e){
+      if(!(e.target.closest && e.target.closest(EXPORT_SEL))) return;
+      exported=true; var p=progress(); p[here]=Date.now(); try{ localStorage.setItem(PROGRESS,JSON.stringify(p)); }catch(err){}
+    },true);
+    setInterval(function(){
+      var now=Date.now(); if(!document.hidden) elapsed+=now-last; last=now;
+      var k=stageKey(); if(k!==stage){ stage=k; elapsed=0; clear(); }
+      var back=document.querySelector('.wayfind .back'), main=mainButton(), midWizard=main && main.classList.contains('next');
+      if(exported && !midWizard){ if(elapsed>=Math.min(wait,20000)) glow(back); }   // done here: point the way back
+      else if(elapsed>=wait) glow(main);
+    },1000);
+  }
+  function guide(){
+    if(!me.dataset.crumbs) return;                                            // the home page is a menu, not a sequence
+    if(document.querySelector('a.cardlink, a.tool')) hubGuide(); else toolGuide();
+  }
+  function init(){
+    var seg=location.pathname.replace(/index\.html$/,'').split('/').filter(Boolean);
+    document.body.dataset.page=seg[seg.length-1]||'home';
+    topbar(); hero(); footer(); paintIcons(); autoHelp(); guide();
+    new MutationObserver(function(){ clearTimeout(autoTimer); autoTimer=setTimeout(autoHelp,120); }).observe(document.body,{childList:true,subtree:true});
+  }
+  if(document.body) init(); else document.addEventListener('DOMContentLoaded',init);
+  window.SiteHelp={html:helpHtml};
+  window.SiteSym={paint:paintIcons, strip:strip};
+})();

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>בונים מצגת לפתרון — קבלת החלטות מבוססת נתונים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alef:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{--canvas:#FAF5EC;--paper:#F2EADC;--card:#FFFDF8;--ink:#2A211B;--ink-soft:#6B5D52;--line:#E3D8C6;--brand:#B4502F;--brand-deep:#8F3D22;--root:#D99A2B;--core-1:#1F5F5B;--sans:'Alef','Segoe UI',Arial,sans-serif;--shadow:0 10px 30px rgba(42,33,27,.12);--shadow-sm:0 3px 12px rgba(42,33,27,.08)}
+  *{box-sizing:border-box} html,body{margin:0;min-height:100%}
+  body{font-family:var(--sans);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;background:var(--canvas);background-image:radial-gradient(1100px 520px at 78% -8%,rgba(180,80,47,.10),transparent 60%),radial-gradient(900px 480px at 10% 6%,rgba(31,95,91,.09),transparent 60%);display:flex;flex-direction:column;min-height:100vh}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit} textarea,input{font-family:inherit}
+  h1,h2,h3,h4{font-weight:700;line-height:1.15;margin:0} a{color:var(--brand-deep)}
+  header.bar{display:flex;align-items:center;gap:16px;padding:12px 22px;background:rgba(250,245,236,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;font-size:19px;letter-spacing:-.4px}
+  .brand .mark{width:28px;height:28px}
+  .hublink{margin-inline-start:auto;font-size:14px;font-weight:700;color:var(--ink-soft);text-decoration:none;border:1px solid var(--line);background:#FFFDF8;padding:8px 14px;border-radius:10px}
+  .btn{padding:10px 16px;border-radius:11px;font-weight:700;font-size:14px;transition:.15s;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+  .btn-brand{background:linear-gradient(135deg,var(--brand),var(--brand-deep));color:#FFFDF8;box-shadow:0 4px 14px rgba(180,80,47,.28)}.btn-brand:hover{background:var(--brand-deep)}
+  .btn-ghost{color:var(--ink-soft);border:1px solid var(--line);background:#FFFDF8}.btn-ghost:hover{color:var(--ink);border-color:#CBBDA6}
+  .wrap{flex:1;width:100%;max-width:1040px;margin:0 auto;padding:26px 20px 56px}
+  .head{text-align:center;margin-bottom:22px}
+  .head h1{font-size:clamp(30px,5vw,44px);letter-spacing:-1.2px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+  .grid>*{min-width:0}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow-sm)}
+  .field{margin-bottom:16px}
+  .field .lab{font-size:15px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .field .lab .n{width:24px;height:24px;border-radius:50%;background:var(--core-1);color:#FFFDF8;font-size:12.5px;display:grid;place-items:center;flex:0 0 auto}
+  .refill{margin-inline-start:auto;font-size:13px;font-weight:700;color:var(--core-1);text-decoration:underline;text-underline-offset:3px}
+  .in-wrap{position:relative}
+  textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:11px 13px 38px;font-size:15px;background:#FFFDF8;color:var(--ink);resize:vertical;min-height:72px;line-height:1.5}
+  textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(180,80,47,.14)}
+  .mic{position:absolute;inset-inline-start:8px;bottom:8px;width:30px;height:30px;border-radius:8px;background:#FFFDF8;border:1px solid var(--line);color:var(--brand-deep);display:grid;place-items:center}
+  .mic.rec{background:#A8362D;border-color:#A8362D;color:#FFFDF8}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chips button{border:1.5px solid var(--line);background:#FFFDF8;border-radius:11px;padding:9px 18px;font-weight:700;font-size:15px}
+  .chips button[aria-pressed="true"]{border-color:var(--brand);background:#FBF1EA;color:var(--brand-deep)}
+  .preview{position:sticky;top:80px}
+  .preview h3{font-size:16px;margin-bottom:10px}
+  .pv-actions{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 10px}
+  .pv-actions .btn{flex:1}
+  .pv-actions .btn-brand{flex:1.6;font-size:15px}
+  .pastehint{font-size:14px;line-height:1.6;background:#dcedea;border-radius:10px;padding:9px 12px}
+  .pastehint kbd{font:700 12.5px Arial;background:#fffdf8;border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+  .prompt-box{background:#1C1512;color:#dce9e6;border-radius:14px;padding:18px;font-size:14.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;max-height:460px;overflow:auto;margin-top:12px}
+  .prompt-box .gap{color:#F0B955}
+  .tip{margin-top:12px;font-size:14px;line-height:1.6;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  footer.credit{display:flex;align-items:center;justify-content:center;gap:11px;padding:12px 22px;text-align:center;font-size:13px;color:var(--ink-soft);background:rgba(250,245,236,.86);border-top:1px solid var(--line)}
+  footer.credit .credit-ava{width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #FFFDF8;box-shadow:var(--shadow-sm)}
+  footer.credit a{color:var(--brand-deep);font-weight:700;text-decoration:none}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#FFFDF8;padding:12px 22px;border-radius:12px;font-weight:700;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:100;box-shadow:var(--shadow);max-width:90vw}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .filebox{margin-top:10px}
+  .filebox[hidden]{display:none}
+  .filenote{margin-top:10px;font-size:14px;line-height:1.6;background:#FBF1E0;border:1px solid #EBD3A8;border-radius:10px;padding:9px 12px}
+  .filenote[hidden]{display:none}
+  @media (max-width:820px){.grid{grid-template-columns:1fr}.preview{position:static}}
+  @media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="stylesheet" href="../../assets/site.css?v=27">
+</head>
+<body>
+  <header class="bar">
+    <div class="brand"><svg class="mark" viewBox="0 0 24 24" fill="none"><path d="M4 5h16M4 5v11a2 2 0 002 2h4l2 3 2-3h4a2 2 0 002-2V5" stroke="#B4502F" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="11" r="2.4" fill="#D99A2B"/></svg>בונים מצגת לפתרון</div>
+    <a class='hublink' href='../'>‹ כל הכלים</a>
+  </header>
+
+  <main class="wrap">
+    <div class="head">
+      <h1>בונים מצגת לפתרון</h1>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <div class="field">
+          <div class="lab"><span class="n">1</span>מה שם הרשות המקומית?</div>
+          <div class="in-wrap"><textarea id="org" style="min-height:52px;padding-bottom:11px" aria-label="מה שם הרשות המקומית?"></textarea></div>
+        </div>
+        <div class="field">
+          <div class="lab"><span class="n">2</span>מה הבעיה, ולמי היא כואבת? <a class="refill" href="../prototype/">למפתחים את הפתרון</a></div>
+          <div class="in-wrap"><textarea id="problem" aria-label="מה הבעיה, ולמי היא כואבת?"></textarea><button class="mic" data-t="problem" aria-label="הכתבה קולית"></button></div>
+        </div>
+        <div class="field">
+          <div class="lab"><span class="n">3</span>אילו נתונים מוכיחים שיש בעיה?</div>
+          <div class="in-wrap"><textarea id="proof" aria-label="אילו נתונים מוכיחים שיש בעיה?"></textarea><button class="mic" data-t="proof" aria-label="הכתבה קולית"></button></div>
+        </div>
+        <div class="field">
+          <div class="lab"><span class="n">4</span>מה הפתרון שאתם מציעים?</div>
+          <div class="in-wrap"><textarea id="solution" aria-label="מה הפתרון שאתם מציעים?"></textarea><button class="mic" data-t="solution" aria-label="הכתבה קולית"></button></div>
+        </div>
+        <div class="field">
+          <div class="lab"><span class="n">5</span>מול מי מציגים? מי מקבל את ההחלטה</div>
+          <div class="in-wrap"><textarea id="audience" aria-label="מול מי מציגים? מי מקבל את ההחלטה"></textarea><button class="mic" data-t="audience" aria-label="הכתבה קולית"></button></div>
+        </div>
+        <div class="field">
+          <div class="lab"><span class="n">6</span>מה מבקשים ממנו?</div>
+          <div class="in-wrap"><textarea id="ask" aria-label="מה מבקשים ממנו?"></textarea><button class="mic" data-t="ask" aria-label="הכתבה קולית"></button></div>
+        </div>
+        <div class="field">
+          <div class="lab"><span class="n">7</span>יש קובץ נתונים, או קובץ אחר, שאפשר לצרף?</div>
+          <div class="chips" id="hasFile"></div>
+          <div class="filebox" id="filebox" hidden>
+            <div class="in-wrap"><textarea id="files" aria-label="מה יש בקובץ?"></textarea><button class="mic" data-t="files" aria-label="הכתבה קולית"></button></div>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="lab"><span class="n">8</span>כמה שקפים?</div>
+          <div class="chips" id="slides"></div>
+        </div>
+      </div>
+
+      <div class="preview">
+        <div class="panel">
+          <h3>הפרומפט</h3>
+          <div class="pv-actions">
+            <button class="btn btn-brand" onclick="App.toPowerPoint()">העתק ופתח PowerPoint</button>
+            <button class="btn btn-ghost" onclick="App.copy()">העתקה</button>
+          </div>
+          <div class="pastehint">ב-PowerPoint שנפתח: לוחצים על <b>Copilot</b> בסרגל העליון, מדביקים עם <kbd>Ctrl</kbd>+<kbd>V</kbd> ושולחים.</div>
+          <div class="filenote" id="filenote" hidden><b>לפני השליחה: מצרפים את הקובץ</b> בחלון הצ'אט של Copilot (סימן + או אטב). יש בקובץ שמות, טלפונים או ת"ז? קודם <a href="../anonymize/">התממה</a>.</div>
+          <div class="prompt-box" id="preview"></div>
+          <div class="tip"><b>עובדים ב-PowerPoint שמותקן במחשב?</b> לוחצים "העתקה", פותחים מצגת חדשה, לוחצים על Copilot בסרגל העליון ומדביקים.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="credit"><img class="credit-ava" src="../../assets/roman.jpg" alt="רומן גרינשטיין"><span>נבנה ע"י רומן גרינשטיין · <a href="mailto:romangash@gmail.com">romangash@gmail.com</a></span></footer>
+  <div class="toast" id="toast"></div>
+
+<script>
+const App=(()=>{
+  'use strict';
+  const LS='dd_pitch_v4';
+  const F=['org','problem','proof','solution','audience','ask'];
+  const SLIDES=['5-6','8-10','12-15'];
+  const GAP={org:'שם הרשות המקומית',problem:'הבעיה ולמי היא כואבת',proof:'הנתונים שמוכיחים שיש בעיה',solution:'הפתרון המוצע',audience:'מול מי מציגים',ask:'מה מבקשים'};
+  let data={org:'',problem:'',proof:'',solution:'',audience:'',ask:'',slides:'8-10',hasFile:'',files:'',edited:{}};
+
+  /* three answers start from "מפתחים את הפתרון" (same browser), until they are edited here */
+  function fromSolution(){
+    try{ const s=JSON.parse(localStorage.getItem('dd_solution_tool_v4')||'{}'), t=v=>(v||'').trim();
+      return {problem:t(s.problem), proof:t(s.dataHave), solution:[t(s.direction),t(s.does)].filter(Boolean).join('\n')}; }catch(e){ return {}; }
+  }
+  function init(){
+    try{ const s=JSON.parse(localStorage.getItem(LS)); if(s) data=Object.assign(data,s); }catch(e){}
+    data.edited=data.edited||{};
+    if(!data.edited.org){ try{ data.org=(JSON.parse(localStorage.getItem('toolkit_identity')||'{}').org||'').trim(); }catch(e){} }
+    const sol=fromSolution(); Object.keys(sol).forEach(k=>{ if(!data.edited[k]) data[k]=sol[k]||''; });
+    F.forEach(k=>{ const el=document.getElementById(k); el.value=data[k]||''; el.addEventListener('input',()=>{ data[k]=el.value; data.edited[k]=true; persist(); render(); }); });
+    const fl=document.getElementById('files'); fl.value=data.files||''; fl.addEventListener('input',()=>{ data.files=fl.value; persist(); render(); });
+    document.querySelectorAll('.mic').forEach(b=>b.addEventListener('click',()=>dictate(document.getElementById(b.dataset.t),b)));
+    render();
+  }
+  function persist(){ try{localStorage.setItem(LS,JSON.stringify(data));}catch(e){} }
+  function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function val(k){ return (data[k]||'').trim(); }
+  /* a missing answer stays in the prompt as [להשלים: ...] so it is clear what is left */
+  function build(mark){
+    const g=k=> val(k) || (mark?'\u0001':'')+'[להשלים: '+GAP[k]+']'+(mark?'\u0002':'');
+    return [
+'פעל כמומחה לאסטרטגיה ולתקשורת חזותית בשלטון המקומי בישראל. אתה בונה מצגות שמשכנעות מקבלי החלטות ברשויות מקומיות: ראשי רשויות, מנכ"לים, גזברים, מנהלי אגפים ומליאות.',
+'המשימה: בנה עבורי מצגת מלאה ומקצועית בת '+data.slides+' שקפים. המצגת תוצג ב'+g('org')+', ומטרתה להביא להחלטה. היא מציגה בעיה, מוכיחה שהבעיה קיימת, מציגה את הפתרון המוצע, ומסתיימת בבקשה ברורה ממקבל ההחלטה.',
+'המידע שלי:\n'
++'הרשות המקומית: '+g('org')+'\n'
++'1. הבעיה, ולמי היא כואבת: '+g('problem')+'\n'
++'2. הנתונים שמוכיחים שיש בעיה: '+g('proof')+'\n'
++'3. הפתרון המוצע: '+g('solution')+'\n'
++'4. מול מי מציגים (מי מקבל את ההחלטה): '+g('audience')+'\n'
++'5. מה מבקשים ממנו: '+g('ask'),
+filesPart(mark),
+'מבנה המצגת. חובה לשמור על ארבעת החלקים, בסדר הזה בדיוק:\n\n'
++'חלק 1 – הגדרת הבעיה\n'
++'- מה הבעיה, את מי היא פוגעת, ולמה חשוב לטפל בה עכשיו.\n'
++'- הצג את הבעיה דרך עיני מי שחווה אותה: תושב, בעל עסק או עובד ברשות. האדם הוא הגיבור, לא הטבלה.\n'
++'- השקף הראשון מנסח את הבעיה במשפט אחד חד שכל מי שבחדר מבין.\n\n'
++'חלק 2 – ההוכחה שיש בעיה\n'
++'- הנתונים שמראים שהבעיה אמיתית, גדולה ומשמעותית לרשות.\n'
++'- מספר מפתח אחד בולט בכל שקף, וגרף פשוט שמבהיר אותו.\n'
++'- השוואה שנותנת לנתון משמעות: לאורך זמן, בין שכונות, או מול רשויות דומות.\n'
++'- אם מתאים: עדות קצרה של תושב או עובד, בלי שם ובלי פרטים מזהים.\n'
++'- השתמש רק בנתונים שנתתי. במקום שחסר נתון, כתוב [נתון להשלמה].\n\n'
++'חלק 3 – הפתרון המוצע\n'
++'- מה בדיוק מציעים, ואיך זה יעבוד בפועל ברשות: מי מפעיל, באיזה אגף, באילו כלים ובאיזה לוח זמנים.\n'
++'- מה ישתנה לתושב ולעובד הרשות. הצג "לפני" ו"אחרי".\n'
++'- הראה את הפתרון בהדמיה או בתרשים זרימה, לא רק במילים.\n'
++'- איך נדע שהפתרון הצליח: מדד הצלחה אחד, נקודת מוצא ויעד.\n'
++'- אם אפשר: הצעה לפיילוט קטן לפני הרחבה.\n\n'
++'חלק 4 – הבקשה\n'
++'- מול מי אנחנו עומדים, ומה בדיוק אנחנו מבקשים ממנו: החלטה, תקציב, אישור פיילוט, שותפים או זמן עבודה.\n'
++'- צעד אחד ברור: מי עושה, מה עושים, ועד מתי.\n'
++'- השקף האחרון הוא הבקשה, לא שקף "תודה".',
+'לכל שקף, ספק:\n'
++'1. מספר השקף, והחלק שהוא שייך אליו (בעיה / הוכחה / פתרון / בקשה).\n'
++'2. כותרת: משפט מסר קצר, עד 6 מילים, שאומר את המסקנה ולא רק את הנושא. מתחתיה משפט משנה קצר אחד.\n'
++'3. תוכן השקף: 2 עד 4 נקודות קצרות. מעט מילים, מסר אחד לשקף.\n'
++'4. איור או הדמיה: תיאור מפורט של תמונה שמתאימה לרשות מקומית בישראל, וכמה שיותר קרובה לנושא השקף. למשל: רחוב ביישוב או בעיר, בניין העירייה או המועצה, מוקד 106, פקח או עובד רשות בשטח, עובד מול מחשב במשרד, תושבים בשכונה, גן ציבורי, תחנת אוטובוס, פחי מחזור, מרכז מסחרי, מפת שכונות. כתוב את התיאור כך שאפשר להדביק אותו כמו שהוא בכלי ליצירת תמונות.\n'
++'5. גרף או תרשים, אם מתאים: איזה סוג גרף, מה בכל ציר, ומה צריך לבלוט בו.\n'
++'6. מה אומר המציג: 2 עד 3 משפטים שהמציג אומר בעל פה בזמן השקף.\n'
++'7. סדר החשיפה בלחיצות: מה מופיע בפתיחת השקף, ומה נוסף בכל לחיצת עכבר (לחיצה 1, לחיצה 2 וכן הלאה), ואיזו אנימציה להפעיל.',
+'התאמה לרשות: '+g('org')+'\n'
++'- לפני שאתה בונה, חפש מידע ציבורי על הרשות: אופי היישוב (עיר, מועצה מקומית או מועצה אזורית), גודל האוכלוסייה, האזור בארץ, הנוף, השכונות והמקומות המוכרים בה.\n'
++'- השתמש במידע הזה כדי שהמצגת, הדוגמאות והאיורים ירגישו כמו הרשות הזו ולא כמו רשות כללית.\n'
++'- אם לא מצאת מידע אמין על הרשות, אמור זאת ואל תמציא פרטים עליה.',
+'הנחיות לאיורים:\n'
++'- האיורים מראים את הרשות הזו: הנוף, סוג הבנייה והרחובות שמתאימים לה (למשל עיר צפופה, יישוב קהילתי, מושב או קיבוץ, עיר עתיקה, יישוב בהר או במדבר).\n'
++'- סגנון אחיד לכל המצגת: איור שטוח ונקי (flat illustration), בצבעים רכים, שמתאים למצגת של רשות מקומית.\n'
++'- נוף ישראלי ורשות מקומית ישראלית: בניינים, רחובות, שילוט ואנשים שנראים כמו ביישוב בישראל.\n'
++'- בלי טקסט בתוך התמונה, בלי לוגואים אמיתיים, ובלי אנשים אמיתיים שאפשר לזהות.\n'
++'- כל איור קשור ישירות למסר של השקף שלו, לא תמונת אווירה כללית.',
+'עיצוב השקפים:\n'
++'- מינימליזם ויזואלי: לכל היותר 4 נקודות טקסט בשקף, ועד 6 מילים בכותרת. בלי פסקאות ארוכות.\n'
++'- היררכיה ורווח לבן: כותרת ברורה, משפט משנה קצר מתחתיה, והרבה מרחב ריק (White Space) כדי שהשקף לא ייראה צפוף.\n'
++'- טיפוגרפיה אחידה: פונט אלף (Alef) הוא הפונט הראשי לכותרות ולגוף הטקסט בכל השקפים. בולד לכותרות, רגיל לטקסט, בלי משקלים אחרים.\n'
++'- רשימות הופכות לוויזואל: בכל מקום שיש תהליך או השוואה, הפוך את הטקסט לתרשים זרימה, לטבלה נקייה או לקוביות ממוספרות (1-2-3), במקום בולטים רגילים.',
+'חשיפה הדרגתית בלחיצות. השקף לא מופיע כולו בבת אחת:\n'
++'- בפתיחת השקף מופיעה רק הכותרת.\n'
++'- כל לחיצת עכבר מוסיפה חלק אחד: נקודה, מספר, איור או חלק בגרף. כך הקהל מקשיב למה שהמציג אומר עכשיו, ולא קורא קדימה.\n'
++'- בשקפי ההוכחה: קודם השאלה או ההקשר, בלחיצה הבאה המספר הגדול, ורק אחר כך הגרף וההשוואה.\n'
++'- בשקף הבקשה: הבקשה עצמה מופיעה בלחיצה האחרונה, לבד ובולטת.\n'
++'- אנימציה פשוטה ואחידה בכל המצגת, כמו "הופעה" (Appear) או "דהייה" (Fade), שמופעלת "בלחיצה" (On Click). בלי אנימציות מעופפות או מסתובבות.',
+'כללים:\n'
++'- כתוב בעברית, בשפה פשוטה ומקצועית, שמתאימה לדרג הבכיר ברשות.\n'
++'- טון: חד, ענייני, ממוקד בערך לתושב ולרשות. פחות מילים, יותר מסרים ברורים.\n'
++'- אל תמציא נתונים, מספרים, שמות, ציטוטים או מחקרים. כל מה שחסר, סמן [להשלמה].\n'
++'- שמור על פרטיות: בלי שמות של תושבים ובלי פרטים מזהים.\n'
++'- אם חסר מידע חשוב באחד מארבעת החלקים, שאל אותי עד 3 שאלות קצרות לפני שאתה בונה את המצגת.',
+'בסוף המצגת, הוסף:\n'
++'- הצעה לפלטת צבעים אחידה למצגת.\n'
++'- שלוש שאלות קשות שמקבל ההחלטה עשוי לשאול, ותשובה קצרה לכל אחת.'
+    ].filter(Boolean).join('\n\n');
+  }
+  /* the attached file is the basis of the deck: read it first, take the numbers from it, cite it */
+  function filesPart(mark){
+    if(data.hasFile==='no') return 'קבצים: לא צירפתי קבצים. השתמש רק במידע שכתוב בפרומפט הזה, ובכל מקום שחסר נתון כתוב [נתון להשלמה].';
+    if(data.hasFile!=='yes') return '';
+    const what=(data.files||'').trim() || (mark?'\u0001':'')+'[להשלים: מה יש בקובץ]'+(mark?'\u0002':'');
+    return 'קבצים מצורפים. צירפתי לשיחה הזו קובץ: '+what+'\n'
+      +'- המצגת צריכה להתבסס על הקובץ הזה. קרא אותו כולו לפני שאתה בונה את המצגת.\n'
+      +'- קח מהקובץ את הנתונים, המספרים, ההשוואות והגרפים, בעיקר לחלק ההוכחה ולמדד ההצלחה של הפתרון.\n'
+      +'- ציין בכל שקף שמשתמש בנתון מהקובץ מאיזה חלק בקובץ הוא נלקח (גיליון, עמודה או עמוד).\n'
+      +'- אם יש בקובץ נתון שסותר את מה שכתבתי, או נתון חשוב שלא הזכרתי, הצבע עליו.\n'
+      +'- אם הקובץ לא נפתח, חסר או לא ברור, אמור לי לפני שאתה ממשיך. אל תנחש מה כתוב בו.';
+  }
+  function render(){
+    document.getElementById('hasFile').innerHTML=[['yes','כן, יש קובץ'],['no','אין קובץ']].map(([k,t])=>`<button type="button" aria-pressed="${data.hasFile===k}" onclick="App.hasFile('${k}')">${t}</button>`).join('');
+    document.getElementById('filebox').hidden=data.hasFile!=='yes';
+    document.getElementById('filenote').hidden=data.hasFile!=='yes';
+    document.getElementById('slides').innerHTML=SLIDES.map(n=>`<button type="button" aria-pressed="${n===data.slides}" onclick="App.slides('${n}')">${n}</button>`).join('');
+    document.getElementById('preview').innerHTML=esc(build(true)).replace(/\u0001/g,'<span class="gap">').replace(/\u0002/g,'</span>');
+  }
+  function hasFile(k){ data.hasFile=data.hasFile===k?'':k; persist(); render(); }
+  function slides(n){ data.slides=n; persist(); render(); }
+  function openWith(url,name){ copy('הועתק ✓ ב-'+name+': Ctrl+V ושליחה'); window.open(url,'_blank','noopener'); }
+  function toPowerPoint(){ copy('הועתק ✓ ב-PowerPoint: Copilot ← Ctrl+V ושליחה'); window.open('https://ppt.new','_blank','noopener'); }
+  function copy(msg){ const t=build(false); (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(typeof msg==='string'?msg:'הפרומפט הועתק ✓')).catch(()=>prompt('העתיקו ידנית:',t)); }
+
+  let recog=null;
+  function dictate(el,btn){const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR){toast('הכתבה קולית נתמכת ב‑Chrome / Edge');return;} if(recog){recog.stop();return;} recog=new SR(); recog.lang='he-IL'; recog.interimResults=true; recog.continuous=false; const base=(el.value||'').trim(); btn.classList.add('rec'); recog.onresult=(e)=>{let f='',i='';for(let k=0;k<e.results.length;k++){const r=e.results[k]; if(r.isFinal)f+=r[0].transcript; else i+=r[0].transcript;} el.value=(base?base+' ':'')+(f+i).trim(); el.dispatchEvent(new Event('input',{bubbles:true}));}; recog.onend=()=>{btn.classList.remove('rec');recog=null;el.focus();}; recog.onerror=()=>{btn.classList.remove('rec');recog=null;}; try{recog.start();toast('מקשיב… דברו בעברית');}catch(e){btn.classList.remove('rec');recog=null;} }
+
+  let tt; function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2400);}
+  return {init,hasFile,slides,copy,toPowerPoint};
+})();
+App.init();
+</script>
+<script src="../../assets/site.js?v=27" data-crumbs='כל ההכשרות|../../;קבלת החלטות מבוססת נתונים|../'></script>
+</body>
+</html>
